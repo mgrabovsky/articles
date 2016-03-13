@@ -1,0 +1,77 @@
+In this section we use F-heaps to implement Dijkstra's shortest path algorithm~%
+\cite{Dijkstra1959} and explore some of the consequences. Our discussion of
+Dijkstra's algorithm is based on Tarjan's presentation~\cite{Tarjan1983}. Let \(G\)
+be a directed graph, one of whose vertices is distinguished as the \term{source}
+\(s\), and each of whose edges \((v, w)\) has a nonnegative \term{length} \(l(v,
+w)\). The \term{length} of a path in \(G\) is the sum of its edge lengths; the
+\term{distance} from a vertex \(v\) to a vertex \(w\) is the minimum length of a path
+from \(v\) to \(w\). A minimum-length path from \(v\) to \(w\) is called
+a \term{shortest path}. The \term{single-source shortest path problem} is that of
+finding a shortest path from \(s\) to \(v\) for every vertex \(v\) in \(G\).
+
+We shall denote the number of vertices in \(G\) by \(n\) and the number of edges by
+\(m\). We assume that there is a path from \(s\) to any other vertex; thus \(m \geq
+n - 1\). Dijkstra's algorithm solves the shortest path problem using
+a \term{tentative distance function} \(d\) from vertices to real numbers with the
+following properties:
+\begin{enumerate}
+	\item For any vertex \(v\) such that \(d(v)\) is finite, there is a path from
+		\(s\) to \(v\) of length \(d(v)\);
+	\item when the algorithm terminates, \(d(v)\) is the distance from \(s\) to
+	\(v\).
+\end{enumerate}
+
+Initially \(d(s) = 0\) and \(d(v) = \infty\) for \(v \neq s\). During the running of the algorithm, each vertex is one of three states: \term{unlabeled}, \term{labeled}, or \term{scanned}. Initially \(s\) is labeled and all other vertices are unlabeled. The algorithm consists of repeating the following step until there are no labeled vertices (every vertex is scanned).
+
+\begin{step}{Scan}
+	Select a labeled vertex \(v\) with \(d(v)\) minimum. Convert \(v\) from labeled
+	to scanned. For each edge \((v, w)\) such that \(d(v) + l(v, w) < d(w)\), replace
+	\(d(w)\) by \(d(v) + l(v, w)\) and make \(w\) labeled.
+\end{step}
+
+The nonnegativity of the edge lengths implies that a vertex, once scanned, can never
+become labeled, and further that the algorithm computes distances correctly.
+
+To implement Dijkstra's algorithm, we use a heap to store the set of labeled
+vertices. The tentative distance of a vertex is its key. Initialization requires one
+\oper{MakeHeap} and one \oper{Insert} operation. Each scanning step requires one
+\oper{DeleteMin} operation. In addition, for each edge \((v, w)\) such that \(d(v)
++ l(v, w) < d(w)\), we need either an \oper{Insert} operation (if \(d(w) = \infty\))
+or a \oper{DecreaseKey} operation (if \(d(w) < \infty\)). Thus there is one
+\oper{MakeHeap} operation, \(n\) \oper{Insert} and \(n\) \oper{DeleteMin} operations,
+and at most \(m\) \oper{DecreaseKey} operations. The maximum heap size is \(n - 1\).
+If we use an F-heap, the total time for heap operations is \bigO{n \log n + m}. The
+time for other tasks is \bigO{n + m}. Thus we obtain an \bigO{n \log n + m } running
+time for Dijkstra's algorithm. This improves Johnson's bound of \bigO{m \log_{(m/n
++ 2)} n}~\cite{Johnson1977,Tarjan1983} based on the use of implicit heaps with
+a branching factor of \(m/n + 2\).
+
+By augmenting the algorithm, we can make it compute shortest paths as well as
+distances: For each vertex \(v\), we maintain a \term{tentative predecessor}
+\(pred(v)\) that immediately precedes \(v\) on a tentative shortest path from \(s\)
+to \(v\). When replacing \(d(w)\) by \(d(v) + l(v, w)\) in a scanning step, we define
+\(pred(w) = v\). Once the algorithm terminates, we can find a shortest path from
+\(s\) to \(v\) for any vertex \(v\) by following predecessor pointers from \(v\) back
+to \(s\). Augmenting the algorithm to maintain predecessors adds only \bigO{m} to the
+running time.
+
+Several other optimization algorithms use Dijkstra's algorithm as a subroutine, and
+for each of these, we obtain a corresponding improvement. We shall give three
+examples:
+\begin{enumerate}
+	\item The all-pairs shortest path problem, with or without negative edge lengths,
+		can be solved in \bigO{nm} time plus \(n\) iterations of Dijkstra's
+		algorithm~\cite{Johnson1977,Tarjan1983}. Thus we obtain a time bound of
+		\bigO{n^2 \log n + n m}, improved from \bigO{n m \log_{(m/n + 2)} n}.
+	\item The assignment problem (bipartite weighted matching) can also be solved in
+		\bigO{nm} time plus \(n\) iterations of Dijkstra's algorithm~%
+		\cite{Tarjan1983}.  Thus we obtain a bound of \bigO{n^2 \log n + n m},
+		improved from \bigO{n m \log_{(m/n + 2)} n}.
+	\item Knuth's generalization~\cite{Knuth1977} of Dijkstra's algorithm to compute
+		minimum-cost derivations in a context-free language runs in \bigO{n \log
+		n + t} time, improved from \bigO{m \log n + t}, where \(n\) is the number of
+		nonterminals, \(m\) is the number of productions, and \(t\) is the total
+		length of the productions. (There is at least one production per nonterminal;
+		thus \(m \geq n\).)
+\end{enumerate}
+

@@ -1,0 +1,91 @@
+A \term{heap} is an abstract data structure consisting of a set of \term{items}, each
+with a real-valued \term{key}, subject to the following operations:
+\begin{itemize}
+    \item \oper{MakeHeap}: Return a new, empty heap.
+    \item \opargs{Insert}{i, h}: Insert a new item \(i\) with predefined key into heap
+        \(h\).
+    \item \opargs{FindMin}{h}: Return an item of minimum key in heap \(h\). This
+        operation does not change \(h\).
+    \item \opargs{DeleteMin}{h}: Delete an item of minimum key from heap \(h\) and
+        return it.
+\end{itemize}
+
+In addition, the following operations on heaps are often useful:
+\begin{itemize}
+    \item \opargs{Meld}{h_1, h_2}: Return the heap formed by taking the union of the
+        item-disjoint heaps \(h_1\) and \(h_2\). This operation destroys \(h_1\) and
+        \(h_2\).
+    \item \opargs{DecreaseKey}{\Delta, i, h}: Decrease the key of item \(i\) in heap
+        \(h\) by subtracting the nonnegative real number \(\Delta\). This operation
+        assumes that the position of \(i\) in \(h\) is known.
+    \item \opargs{Delete}{i, h}: Delete arbitrary item \(i\) from heap \(h\). This
+        operation assumes that the positino of \(i\) in \(h\) is known.
+\end{itemize}
+
+Note that other authors have used different terminology for heaps.  Knuth~%
+\cite{TAOCP1} called heaps ``priority queues.'' Aho et al.~\cite{Aho+1974} used
+this term for heaps not subject to melding and called heaps subject to melding
+``mergeable heaps.''
+
+In our discussion of heaps, we assume that a given item is in only on heap at a time
+and that a pointer to its heap position is maintained. It is important to remember
+that heaps do \emph{not} support efficient searching for an item.
+
+\begin{remark}
+    The heap parameter \(h\) in \oper{DecreaseKey} and \oper{Delete} is actually
+    redundant, since item \(i\) determines \(h\). However, our implementations of
+    these operations require direct access to \(h\), which must be provided by an
+    auxiliary data structure if \(h\) is not a parameter to the operation. If melding
+	is allowed, a data structure for disjoint set union~\cite{TarjanVanLeeuwen1984}
+	must be used for this purpose; otherwise, a pointer from each item to the heap
+	containing it suffices.
+\end{remark}
+
+Vuillemin~\cite{Vuillemin1978} invented a class of heaps, called \term{binomial
+queues}, that support all the heap operations in \bigO{\log n} worst-case time. Here
+\(n\) is the number of items in the heap or heaps involved in the operation.
+Brown~\cite{Brown1978} studied alternative representations of binomial heaps and
+developed both theoretical and experimental running-time bounds. His results suggest
+that binomial queues are a good choice in practice if meldable heaps are needed,
+although several other heap implementations have the same \bigO{\log n} worst-case
+time bound. For further discussion of heaps, see~\cite{Aho+1974,Brown1978,TAOCP3,Tarjan1983}.
+
+In this paper we develop an extension of binomial queues called \term{Fibonacci
+heaps}, abbreviated \term{F-heaps}. F-heaps support \oper{DeleteMin} and
+\oper{Delete} in \bigO{\log n} amortized time, and all the other heap operations, in
+particular \oper{DecreaseKey}, in \bigO{1} amortized time. For situations in which
+the number of deletions is small compared to the total number of operations, F-heaps
+are asymptotically faster than binomial queues.
+
+Heaps have a variety of applications in network optimization, and in many such
+applications, the number of deletions is relatively small. Thus we are able to use
+F-heaps to obtain asymptotically faster algorithms for several well-known network
+optimization problems. Our original purpose in developing F-heaps was to speed up
+Dijkstra's algorithm for the single-source shortest path problem with non-negative
+length edges~\cite{Dijkstra1959}. Our implementation of Dijkstra's algorithm runs in
+\bigO{n \log n + m} time, improved from Johnson's \bigO{m \log_{(m/n + 2)} n} bound~%
+\cite{Johnson1977,Tarjan1983}.
+
+Various other network algorithms use Dijkstra's algorithm as a subroutine, and for
+each of these, we obtain a corresponding improvement. Thus we can solve both the
+all-pairs shortest path problem with possibly negative length edges and the
+assignment problem (bipartite weighted matching) in \bigO{n^2 \log n + n m} time,
+improved from \bigO{n m \log_{(m/n + 2)} n}~\cite{Tarjan1983}.
+
+We also obtain a faster method for computing minimum spanning trees. Our bound is
+\bigO{m \beta(m, n)}, improved from \bigO{m \log \log_{(m/n + 2)} n}~%
+\cite{CheritonTarjan1976,Tarjan1983}, where \[\beta(m, n) = \min \{ i \mid \log^{(i)}
+n \leq m/n \}.\]
+
+All our bounds for network optimization are asymptotic improvements for graphs of
+intermediate density (\(n \ll m \ll n^2\)). Our bound for minimum spanning trees,
+which is perhaps our most striking result, is an asymptotic improvement for sparse
+graphs as well.
+
+The remainder of the paper consists of five sections. In \autoref{sec:f-heaps} we
+develop and analyze F-heaps. In \autoref{sec:variants} we discuss variants of F-heaps
+and some additional heap operations. In \autoref{sec:shortest-paths} we use F-heaps
+to implement Dijkstra's algorithm. In \autoref{sec:mst} we discuss the minimum
+spanning tree problem. In \autoref{sec:results} we mention several more recent
+results and remaining open problems.
+

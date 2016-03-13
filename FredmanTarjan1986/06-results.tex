@@ -1,0 +1,51 @@
+F-heaps have several additional applications. H.~Gabow (private communication, Oct.
+1984) has noted that they can be used to speed up the scaling algorithm of Edmonds
+and Karp~\cite{EdmondsKarp1972} for minimum-cost network flow from \bigO{m^2
+(\log_{(m / n + 2)} n) (\log N)} to \bigO{m (n \log n + m) (\log N)}, where \(N\) is
+the maximum capacity, assuming integer capacities. They can also be used to find
+shortest pairs of disjoint paths in \bigO{n \log n + m} time~%
+\cite{GabowStallman1985}, improved from \bigO{m \log_{(m / n + 2)} n}~%
+\cite{SuurballeTarjan1984}.
+
+A less immediate application is to the directed analogue of the minimum spanning tree
+problem -- the optimum branching problem. Gabow, Galil, and Spencer~\cite{Gabow+1984}
+have proposed a very complicated \bigO{n \log n + m \log \log \log_{(m / n + 2)}
+n}-time algorithm for this problem, improving on Tarjan's~\cite{Camerini+1979,
+Tarjan1977} bound of \bigO{\min \{ m \log n, n^2 \}}. F-heaps can be used to solve
+this problem in \bigO{n \log n + m} time~\cite{Gabow+1986}.
+
+Another recent major result is an improvement by Gabow, Galil, and Spencer~%
+\cite{Gabow+1984} to our minimum spanning tree algorithm of
+\autoref{sec:shortest-paths}. They have improved our time bound from \bigO{m \beta(m,
+n)} to \bigO{m \log \beta(m, n)} by introducing the idea of grouping edges with
+a common vertex into ``packets'' and working only with packet minima.
+(See~\cite{Gabow+1986}.)
+
+Several intriguing open questions are raised by our work:
+\begin{enumerate}[(i)][3]
+	\item Is there a ``self-adjusting'' version of F-heaps that achieves the same
+		amortized time bounds, but requires neither maintaining ranks nor performing
+		cascading cuts? The self-adjusting version of leftist heaps proposed by
+		Sleator and Tarjan~\cite{SleatorTarjan1986} does not solve this problem, as
+		the amortized time bound for \oper{DecreaseKey} is \bigO{\log n} rather than
+		\bigO{1}. We have a candidate data structure, but are so far unable to verify
+		that it has the desired time bounds.
+	\item Can the best time bounds for finding shortest paths and minimum spanning
+		trees be improved? Dijkstra's algorithm requries \(\Omega(n \log n + m)\)
+		time assuming a comparison-based computation model, since it mus texamine all
+		the edges in the worst case and can be used to sort \(n\) numbers.
+		Nevertheless, this does not preclude the existence of another, faster
+		algorithm. Similarly, there is no reason to suppose tha the
+		Gabow--Galil--Spencer bound for minimum spanning trees is the best possible.
+		It is suggestive that the minimality of a spanning tree can be checked in
+		\bigO{m \alpha(m, n)} time~\cite{Tarjan1979b} and even in \bigO{m}
+		comparison~\cite{Komlos1984}. Furthermore, if the edges are presorted,
+		a minimum spanning tree can be computed in \bigO{m \alpha(m, n)} time~%
+		\cite{Tarjan1983}.
+	\item Are there other problems needing heaps where the use of F-heaps gives
+		aymptotically improved algorithms? A possible candidate is the nonbipartite
+		weighted matching problem, for which the current best bound of \bigO{n^2 \log
+		n + n m \log \log \log_{(m / n + 2)} n}~\cite{Gabow+1984} might be improvable
+		to \bigO{n^2 \log n + n m}.
+\end{enumerate}
+

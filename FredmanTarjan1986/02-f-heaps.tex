@@ -1,0 +1,286 @@
+To implement heaps we use heap-ordered trees. A \term{heap-ordered tree} is a rooted
+tree containing a set of items, one item in each node, with the items arranged in
+\term{heap order}: If \(x\) is any node, then the key of the item in \(x\) is no less
+than the key of the item in its parent \(p(x)\), provided \(x\) has a parent. Thus
+the tree root contains an item of minimum key. The fundamental operation on
+heap-ordered trees is \term{linking}, which combines two item-disjoint trees into
+one. Given two trees with roots \(x\) and \(y\), we link them by comparing the keys
+of the items in \(x\) and \(y\). If the item in \(x\) has the smaller key, we make
+\(y\) a child of \(x\); otherwise, we make \(x\) a child of \(y\). (See
+\autoref{fig:linking}.)
+
+\begin{figure}
+    \begin{subfigure}[t]{0.50\textwidth}
+        \centering
+		\input{fig/01a.tikz}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+		\input{fig/01b.tikz}
+        \caption{}
+    \end{subfigure}
+    \caption{Linking two heap-ordered trees. (In this and most of the succeeding
+        figures, we do not distinguish betweens items and their keys.) (a)~Two trees.
+        (b)~After linking.}
+    \label{fig:linking}
+\end{figure}
+
+A \term{Fibonacci heap} (\term{F-heap}) is a collection of item-disjoint heap-ordered
+trees. We impose no explicit constraints on the number or structure of the trees; the
+only constraints are implicit in the way the trees are manipulated. We call the
+number of children of a node \(x\) its \term{rank} \(r(x)\). There is no constant
+upper bound on the rank of a node, although we shall that the rank of a node with
+\(n\) descendants is \bigO{\log n}. Each node is either \term{marked} or
+\term{unmarked}; we shall discuss the use of marking later.
+
+In order to make the correctness of our claimed time bounds obvious, we assume the
+following representation of F-heaps: Each node contains a pointer to its parent (or
+to a special node \term{null} if it has no parent) and a pointer to one of its
+children. The children of each node are doubly linked in a circular list. Each node
+also contains its rank and a bit indicating whether it is marked. The roots of all
+the trees in the heap are doubly linked in a circular list. We access the heap by
+a pointer to a root containing an item of minimum key; we call this root the
+\term{minimum node} of the heap. A minimum node of null denotes the empty heap. (See
+\autoref{fig:pointers}.) This representation requires space in each node for one
+item, four pointers, an integer, and a bit. The double linking of the lists of roots
+and children makes deletion from such a list possible if \bigO{1} time. The circular
+linking makes concatenation of lists possible in \bigO{1} time.
+
+\begin{figure}
+    \caption{Pointers representing an F-heap. The four pointers in each node indicate
+    the left sibling, the parent, some child, and the right sibling. The middle field
+    in each node is its key. Ranks and mark bits are not shown.}
+    \label{fig:pointers}
+\end{figure}
+
+We shall postpone a discussion of \oper{DecreaseKey} and \oper{Delete} until later in
+the section. The remaining heap operations we carry out as follows: To perform
+\oper{MakeHeap}, we return a pointer to null. To perform \opargs{FindMin}{h}, we
+return the item in the minimum node of \(h\). To carry out \opargs{Insert}{i, h}, we
+create a new heap consisting of one node containing \(i\), and replace \(h\) by the
+meld of \(h\) and the new heap. To carry out \opargs{Meld}{h_1, h_2}, we combine the
+root lists of \(h_1\) and \(h_2\) into a single list, and return as the minimum node
+of the new heap either the minimum node of \(h_1\) or the minimum node of \(h_2\),
+whichever contains the item of the smaller key. (In the case of a tie, the choice is
+arbitrary.) All of these operations take \bigO{1} time.
+
+\begin{step}{Linking step}
+	Find any two trees whose roots have the same rank, and link them. (The new tree
+	root has rank one greater than the ranks of the old tree roots.)
+\end{step}
+
+Once there are no two trees with roots of the same rank, we form a list of the
+remaining roots, in the process finding a root containing an item of minimum key to
+serve as the minimum node of the modified heap. We complete the deletion by saving
+the item in \(x\), destroying \(x\), and returning the saved item. (See
+\autoref{fig:delete-min}.)
+
+\begin{figure}
+    \caption{Effect of a \oper{DeleteMin} operation. (a)~Before the deletion.
+    (b)~After removal of the minimum node, containing 3. (c)~After linking 4 and 8,
+    then 4 and 6, then 5 and 12.}
+    \label{fig:delete-min}
+\end{figure}
+
+The \oper{DeleteMin} operation requires finding pairs of tree roots of the same rank
+to link. To do this we use an array indexed by rank, from zero up to the maximum
+possible rank. Each array position holds a pointer to a tree root. When performing
+a \oper{DeleteMin} operation, after deleting the minimum node and forming a list of
+the new tree roots, we insert the roots one by one into the appropriate array
+positions. Whenever we attempt to insert a root into an already occupied position, we
+perform a linking step and attempt to insert the root of the new tree into the next
+higher position. After successfully inserting all the roots, we scan the array,
+emptying it. The total time for the \oper{DeleteMin} operation is proportional to the
+maximum rank of any of the nodes manipulated plus the number of linking steps.
+
+The data structure we have so far described is a ``lazy melding'' version of binomial
+queues. If we begin with no heaps and carry out an arbitrary sequence of heap
+operations (not including \oper{Delete} or \oper{DecreaseKey}), then each tree ever
+created is a \term{binomial tree}, defined inductively as follows: A binomial tree of
+rank zero consists of a single node; a binomial tree of rank \(k > 0\) is formed by
+linking two binomial trees of rank \(k - 1\). (See \autoref{fig:binomial-trees}.)
+A binomial tree of rank \(k\) contains exactly \(2^k\) nodes, and its root has
+exactly \(k\) children. Thus every node in a \(n\)-item heap has rank at most \(\log
+n\).\footnote{All logarithms in this paper for which a base is not explicitly
+specified are base 2.}
+
+\begin{figure}
+    \caption{Binomial trees. (a)~Inductive definition. (b)~Examples.}
+    \label{fig:binomial-trees}
+\end{figure}
+
+We can analyze amortized running times of the heap operations by using the
+``potential'' technique of Sleator and Tarjan~\cite{SleatorTarjan1986,Tarjan1985}. We
+assign to each possible collection of heaps a real number called the \term{potential}
+of the heaps. We define the \term{amortized time} of a heap operation to be its
+actual running time plus the net increase it causes in the potential. (A decrease in
+potential counts negatively and thus makes the amortized time less than the actual
+time.) With this definition, the actual time of a sequence of operations is equal to
+the total amortized time plus the net decrease in potential over the entire sequence.
+
+To apply this technique, we define the potential of a collection of heaps to be the
+total number of trees they contain. If we begin with no heaps, the initial potential
+is zero, and the potential is always nonnegative. Thus the total amortized time of
+a sequence of operations is an upper bound on the total actual time. The amortized
+time of a \oper{MakeHeap}, \oper{FindMin}, \oper{Insert}, or \oper{Meld} operation is
+\bigO{1}: An insertion increases the number of trees by one; the other operations do
+not affect the number of trees. If we charge one unit of time for each linking step,
+then a \oper{DeleteMin} operation has an amortized time of \bigO{\log n}, where \(n\)
+is the number of items in the heap: Deleting the minimum node increases the number of
+trees by at most \(\log n\); each linking step decreases the number of trees by one.
+
+Our goal now is to extend this data structure and its analysis to include the
+remaining heap operations. We implement \oper{DecreaseKey} and \oper{Delete} as
+follows: To carry out \opargs{DecreaseKey}{\Delta, i, h}, we subtract \(\Delta\) from
+the key of \(i\), find the node \(x\) containing \(i\), and cut the edge joining
+\(x\) to its parent \(p(x)\). This requires removing \(x\) from the list of children
+of \(p(x)\) and making the parent pointer of \(x\) null. The effect of the cut is to
+make the subtree rooted at \(x\) into a new tree of \(h\), and requires decreasing
+the rank of \(p(x)\) and adding \(x\) to the list of roots of \(h\). (See
+\autoref{fig:decrease-key}.) (If \(x\) is originally a root, we carry out
+\opargs{DecreaseKey}{\Delta, i, h} merely by subtracting \(\Delta\) from the key of
+\(i\). If the new key of \(i\) is smaller than the key of the minimum node, we
+redefine the minimum node to be \(x\). This method works because \(\Delta\) is
+nonnegative; decreasing the key of \(i\) preserves heap order within the subtree
+rooted at \(x\), though it may violate heap order between \(x\) and its parent.
+A \oper{DecreaseKey} operation takes \bigO{1} actual time.
+
+\begin{figure}
+    \caption{The \oper{DecreaseKey} and \oper{Delete} operations. (a)~The original
+    heap. (b)~After reducing key 10 to 6. The minimum node is still the node
+    containing 3. (c)~After deleting key 7.}
+    \label{fig:decrease-key}
+\end{figure}
+
+The \oper{Delete} operation is similar to \oper{DecreaseKey}. To carry out
+\opargs{Delete}{i, h}, we find the node \(x\) containing \(i\), cut the edge joining
+\(x\) and its parent, for a new list of roots by concatenating the list of children
+of \(x\) with the original list of roots, and destroy node \(x\). (See
+\autoref{fig:decrease-key}.) If \(x\) is originally a root, we remove it from the
+list of roots rather than removing it from the list of children of its parent; if
+\(x\) is the minimum node of the heap, we proceed as in \oper{DeleteMin}.)
+A \oper{Delete} operation takes \bigO{1} actual time, unless the node destroyed is
+the minimum node.
+
+There is one additional detail of the implementation that is necessary to obtain the
+desired time bounds. After a root node \(x\) has been made a child of another node by
+a linking step, as soon as \(x\) loses two of its children through cuts, we cut the
+edge joining \(x\) and its parent as well, making \(x\) a new root as in
+\oper{DecreaseKey}. We call such a cut a \term{cascading cut}. A single
+\oper{DecreaseKey} or \oper{Delete} operation in the middle of a sequence of
+operations can cause a possibly large number of cascading cuts. (See
+\autoref{fig:cascading-cuts}.)
+
+\begin{figure}
+    \caption{Cascading cuts. (a)~Just before decreasing key 10. Nodes 4, 5, and 9 are
+    assumed to have previously lost a child via a cut. (b)~After decreasing key 10 to
+    7. The original cut separates 10 from 9. Cascading cuts separate 9 from 5, 5 from
+    4, and 4 from 2.}
+    \label{fig:cascading-cuts}
+\end{figure}
+
+The purpose of marking nodes is to keep track of where to make cascading cuts. When
+making a root node \(x\) a child of another node in a linking step, we unmark \(x\).
+When cutting the edge joining a node \(x\) and its parent \(p(x)\), we decrease the
+rank of \(p(x)\) and check whether \(p(x)\) is a root. If \(p(x)\) is not a root, we
+mark it if it is unmarked and cut the edge to its parent if it is marked. (The latter
+case may lead to further cascading cuts.) With this method, each cut takes \bigO{1}
+time.
+
+This completes the description of F-heaps. Our analysis of F-heaps hinges on two
+crucial properties: \begin{inparaenum}[(1)]
+    \item Each tree in an F-heap, even though not necessarily a binomial tree, has
+        a size at least exponential in the rank of its root; and
+    \item the number of cascading cuts that take place during a sequence of heap
+    operations is bounded by the number of \oper{DecreaseKey} and \oper{Delete}
+    operations.
+\end{inparaenum}
+Before proving these properties, we remark that cascading cuts are introduced in the
+manipulation of F-heaps for the purpose of preserving property (1). Moreover, the
+condition for their occurrence, namely, the ``loss of two children'' rule, limits the
+frequency of cascading cuts as described by property (2). The following lemma implies
+property (1).
+
+\begin{lemma}
+    \label{lemma:child-rank}
+    Let \(x\) be any node in an F-heap. Arrange the children of \(x\) in the order
+    they were linked to \(x\), from earliest to latest. Then the \(i\)th child of
+    \(x\) has a rank of at least \(i - 2\).
+\end{lemma}
+
+\begin{proof}
+    Let \(y\) be the \(i\)th child of \(x\), and consider the time when \(y\) was
+    linked to \(x\). Just before the linking, \(x\) had at least \(i - 1\) children
+    (some of which it may have lost after the linking). Since \(x\) and \(y\) had the
+    same rank just before the linking, they both had a rank of at least \(i - 1\) at
+    this time. After the linking, the rank of \(y\) could have decreased by at most
+    one without causing \(y\) to be cut as a child of \(x\).
+\end{proof}
+
+\begin{corollary}
+	\label{cor:golden-node}
+    A node of rank \(k\) in an F-heap has at least \(F_{k+2} \geq \phi^k\)
+    descendants, including itself, where \(F_k\) is the \(k\)th Fibonacci number
+    (\(F_0 = 0, F_1 = 1, F_k = F_{k-2} + F_{k-1}\) for \(k \geq 2\)), and \(\phi = (1
+    + \sqrt 5) / 2\) is the golden ratio. (See \autoref{fig:fibonacci}.)
+\end{corollary}
+
+\begin{proof}
+    Let \(S_k\) be the minimum possible number of descendants of a node of rank
+    \(k\). Obviously, \(S_0 = 1\), and \(S_1 = 2\). \autoref{lemma:child-rank}
+    implies that \(S_k \geq \sum_{i=0}^{k-2} S_i + 2\) for \(k \geq 2\). The
+    Fibonacci numbers satisfy \(F_{k+2} = \sum_{i=2}^k F_i + 2\) for \(k \geq 2\),
+    from which \(S_k \geq F_{k+2}\) for \(k \geq 0\) follows by induction on \(k\).
+    The inequality \(F_{k+2} \geq \phi^k\) is well known~\cite{TAOCP1}.
+\end{proof}
+
+\begin{remark}
+    This corollary is the source of the name ``Fibonacci heap.''
+\end{remark}
+
+\begin{figure}
+    \caption{Trees of minimum possible size for a given rank in a Fibonacci heap.}
+    \label{fig:fibonacci}
+\end{figure}
+
+To analyze F-heaps we need to extend our definition of potential. We define the
+potential of a collection of F-heaps  to be the number of trees plus twice the number
+of marked nonroot nodes. The \bigO{1} amortized time bounds for \oper{MakeHeap},
+\oper{FindMin}, \oper{Insert}, and \oper{Meld} remaind valid, as does the \bigO{\log
+n} bound for \oper{DeleteMin}; \opargs{DeleteMin}{h} increases the potential by at
+most \(1.4404 \log n\) minus the number of linking steps, since, if the minimum node
+has rank \(k\), then \(\phi^k \leq n\) and thus \(k \leq \log n\,/\log \phi \leq
+1.4404 \log n\).
+
+Let us charge one unit of time for each cut. A \oper{DecreaseKey} operation causes
+the potential to increase by at most three minus the number of cascading cuts, since
+the first cut converts a possibly unmarked nonroot node into a root, each cascading
+cut converts a marked nonroot node into a root, and the last cut (either first or
+cascading) can convert a nonroot node from unmarked to marked. It follows that
+\oper{DecreaseKey} has an \bigO{1} amortized time bound. Combining the analysis of
+\oper{DecreaseKey} with that of \oper{DeleteMin}, we obtain and \bigO{\log n}
+amortized time bound for \oper{Delete}. Thus we have the following theorem.
+
+\begin{theorem}
+    If we begin with no F-heaps and perform an arbitrary sequence of F-heap
+    operations, then the total time is at most the total amortized time, where the
+    amortized time is \bigO{\log n} for each \oper{DeleteMin} or \oper{Delete}
+    operation and \bigO{1} for each of the other operations.
+\end{theorem}
+
+We close this section with a few remarks on the storage utilization of F-heaps. Out
+implementation of F-heaps uses four pointers per node, but this can be reduced to
+three per node by using an appropriate alternative representation~\cite{Brown1978}
+and even to two per node by using a more complicated representation, at a cost of
+a constant factor in running time. Although our implementation uses an array for
+finding roots of the same rank to link, random-access memory is not actually
+necessary for this purpose.  Instead, we can maintain a doubly linked list of
+\term{rank nodes} representing the possible ranks. Each node has a \term{rank
+pointer} to the rank node representing its rank. Since the rank of a node is
+initially zero and only increases or decreases by one, it is easy to maintain the
+rank pointers. When we need to carry out linking steps, we can use each rank node to
+hold a pointer to a root of the appropriate rank.  Thus the entire data structure can
+be implemented on a pointer machine~\cite{Tarjan1979a} with no loss in asymptotic
+efficiency.
+

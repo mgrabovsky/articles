@@ -1,0 +1,150 @@
+A less immediate application of F-heaps is to the computation of minimum spanning
+trees. See~\cite{Tarjan1983} for a systematic discussion of minimum spanning tree
+algorithms. Let \(G\) be a connected undirected graph with \(n\) vertices and \(m\)
+edges \((v, w)\) each of which has a nonnegative \term{cost} \(c(v, w)\).
+A \term{minimum spanning tree} of \(G\) is a spanning tree of \(G\) of minimum total
+edge cost.
+
+We can find a minimum spanning tree by using a generalized greedy approach. We
+maintain a forest defined by the edges so far selected to be in the minimum spanning
+tree. We initialize the forest to contain each of the \(n\) vertices of \(G\) as
+a one-vertex tree. We initialize the forest to contain each of the \(n\) vertices of
+\(G\) as a one-vertex tree. Then we repeat the following step \(n - 1\) times (until
+there is only one \(n\)-vertex tree).
+
+\begin{step}{Connect}
+	Select any tree \(T\) in the forest. Find a minimum-cost edge with exactly one
+	endpoint in \(T\) and add it to the forest. (This connects two trees to form
+	one.)
+\end{step}
+
+This algorithm is nondeterministic: We are free to select the tree to be processed in
+each connecting step in any way we wish. One possibility is to always select the tree
+containing a fixed start vertex \(s\), thereby growing a single tree \(T\) that
+absorbs the vertices of \(G\) one by one. This algorithm, usually credited to Prim~%
+\cite{Prim1957} and Dijkstra~\cite{Dijkstra1959} independently, was actually
+discovered by Jarník~\cite{Jarnik1930} (see Graham and Hell's survey paper~%
+\cite{GrahamHell1985}). The algorithm is almost identical to Dijkstra's shortest path
+algorithm, and we can implement it in the same way. For each vertex \(v\) not yet in
+\(T\), we maintain a key measuring the tentative cost of connecting \(v\) to \(T\).
+If \(v \neq s\) and \(key(v) < \infty\), we also maintain an edge \(e(v)\) by which
+the connection can be made. We start by defining \(key(s) = 0\) and key \(key(v)
+= \infty\) for \(v \neq s\). Then we repeat the following step until no vertex has
+finite key:
+
+\begin{step}{Connect to start}
+	Select a vertex \(v\) with \(key(v)\) minimum among vertices with finite key.
+	Replace \(key(v)\) by \(-\infty\). For each edge \((v, w)\) such that \(c(v, w)
+	< key(w)\), replace \(key(w)\) by \(c(v, w)\) and define \(e(w) = (v, w)\).
+\end{step}
+
+When this algorithm terminates, the set of edges \(e(v)\) with \(v \neq s\) defines
+a minimum spanning tree. The purpose of setting \(key(v) = -\infty\) in the
+connecting step is to mark \(v\) as being in \(T\). If we store the vertices with
+finite key in an F-heap, the algorithm requires \(n\) \oper{DeleteMin} operations and
+\bigO{m} other heap operations, none of them deletions. The total running time is
+\bigO{n \log n + m}.
+
+The best previous bound for computing minimum spanning trees is \bigO{m \log
+\log_{(m/n + 2)} n}~\cite{CheritonTarjan1976,Tarjan1983}, a slight improvement over
+Yao's \bigO{m \log \log n} bound~\cite{Yao1975}. Our \bigO{n \log n + m} bound is
+better than the old bound for graphs of intermediate density (e.g., \(m = \Theta(n
+\log n)\)). However, we can do better.
+
+The idea is to grow a single tree only until its heap of neighboring vertices exceeds
+a certain critical size. Then we start from a new vertex and grow another tree, again
+stopping when the heap gets too large. We continue in this way until every vertex is
+in a tree. Then we condense every tree into a single supervertex and begin a new pass
+of the same kind over the condensed graph. After a sufficient number of passes, only
+one supervertex will remain, and by expanding the supervertices, we can extract
+a minimum spanning tree.
+
+Our implementation of this method does the condensing implicitly. We shall describe
+a single pass of the algorithm. We begin with a forest of previously grown trees,
+which we call \term{old trees}, defined by the edges so far added to the forest. The
+pass connects these old trees into new larger trees that become the old trees for the
+next pass.
+
+To start the pass, we number the old trees consecutively from one and assign to each
+vertex the number of the tree containing it. Thus allows us to refer to trees by
+number and to directly access the old tree \(tree(v)\) containing any vertex \(v\).
+Next, we do a \term{cleanup}, which takes the place of condensing. We discard every
+edge connecting two vertices in the same old tree and all but a minimum-cost edge
+connecting each pair of old trees. We can do such a cleanup in \bigO{m} time by
+sorting the edges lexicographically on the number of the trees containing their
+endpoints, using a two-pass radix sort. Then we scan the sorted edge list, saving
+only the appropriate edges. After the cleanup we construct a list for each old tree
+\(T\) of the edges with one endpoint in \(T\). (Each edge will appear in two such
+lists.)
+
+To grow new trees, we give every old tree a key of \(\infty\) and unmark it. We
+create an empty heap. Then we repeat the following tree-growing step until there are
+no unmarked old trees. This completes the pass.
+
+\begin{step}{Grow a new tree}
+	Select any unmarked old tree \(T_0\), and insert it as an item into th heap with
+	a key of zero. Repeat the following step until the heap is empty, or it contains
+	more than \(k\) trees (where \(k\) is a parameter to be chosen later), or the
+	growing tree becomes connected to a marked old tree:
+
+	\begin{step}{Connect to starting tree}
+		Delete an old \(T\) of minimum key from the heap. Set \(key(T) = -\infty\).
+		If \(T \neq T_0\) (i.e., \(T\) is not the starting tree of this growth step),
+		add \(e(T)\) to the forest. (Edge \(e(T)\) connects old tree \(T\) to the
+		current tree containing \(T_0\).) If \(T\) is marked, stop growing the
+		current tree, and finish the growth step as described below. Otherwise, mark
+		\(T\). For each edge \((v, w)\) with \(v\) in \(T\) and \(c(v, w)
+		< key(tree(w))\), set \(e(tree(w)) = (v, w)\). If \(key(tree(w)) = \infty\),
+		insert \(tree(w)\) in the heap with a redefined key of \(c(v, w)\); if \(c(v,
+		w) < key(tree(w)) < \infty\), decrease the key of \(tree(w)\) to \(c(v, w)\).
+	\end{step}
+
+	To finish the growth step, empty the heap and set \(key(T) = \infty\) for every
+	old tree \(T\) with finite key (these are the trees that have been inserted into
+	the heap during the current growth step).
+\end{step}
+
+We can analyze the running time of a pass as follows: The time for the cleanup and
+other initialization is \bigO{m}. If \(t\) is the number of old trees, the total tile
+for growing new trees is \bigO{t \log k + m}: We need at most \(t\) \oper{DeleteMin}
+operations, each on a heap of size \(k\) or smaller, and \bigO{m} other heap
+operations, none of which is a deletion.
+
+We wish to choose values of \(k\) for successive passes so as to minimize the total
+running time. Smaller values of \(k\) reduce the time per pass; larger values reduce
+the number of passes. For each pass let use choose \(k = 2^{2m/t}\), where \(m\) is
+the original number of edges in the graph and \(t\) is the number of trees before the
+pass. The value of \(k\) increases from pass to pass as the number of trees
+decreases. With this choice of \(k\), the running time per pass is \bigO{m}.
+
+It remains for us to bound the number of passes. Consider the effect of a pass that
+begins with \(t\) trees and \(m' \leq m\) edges (some edges may have been discarded).
+Each tree \(T\) remaining after the pass has more than \(k = 2^{2m/t}\) edges with at
+least one endpoint in \(T\). (If \(T_0\) is the first old tree among those making up
+\(T\) that was placed in the heap, then \(T_0\) was grown until the heap reached size
+\(k\), at which time the current tree \(T'\) containing \(T_0\) had more than \(k\)
+incident edges. Other trees may have later been connected to \(T'\), causing some of
+these incident edges to have \emph{both} their endpoints in the final tree \(T\).)
+Since each of the \(m'\) edges has only two endpoints, this means that the number of
+trees remaining after the pass, say, \(t'\), satisfies \(t' \leq 2m'/k\). If \(k'\)
+is the heap size bound for the next pass, we have \(k' = 2^{2m/t'} \geq 2^k\). Since
+the initial heap size bound is \(2m/n\) and a heap size bound of \(n\) or more is
+only possible on the last pass, the number of passes is at most \(\min \{ i \mid
+\log^{(i)} n \leq 2m/n \} + 1 = \beta(m, n) + \bigO{1}\), where \(\beta(m, n) = \min
+\{ i \mid \log^{(i)} n \leq m/n \}\) and \(\log^{(i)} n\) is defined inductively by
+\(log^{(0)} n = n, \log^{(i+1)} n = \log \log^{(i)} n\).
+
+Thus we obtain a time bound of \bigO{m \beta(m, n)} for the computation of minimum
+spanning trees. This bound improves the old \bigO{m \log \log_{(m/n + 2)} n} bound
+for all sufficiently sparse graphs. Note that \(\beta(m, n) \leq log^* n\) if \(m
+\geq n\), where \(\log^* n = \min \{ i \mid \log^{(i)} n \leq 1 \}\). (If \(m < n\),
+then \(m = n - 1\) and the entire graph is a tree, since we have assumed that the
+graph is connected.)
+
+Our fast minimum spanning tree algorithm improves the time bounds for certain kinds
+of constrained minimum spanning tree problems as well. For example, one can find
+a minimum spanning tree with a degree constraint at one vertex in \bigO{m \beta(m,
+n)} time, and a minimum spanning tree with a fixed number of marked edges in a graph
+with marked and unmarked edges in \bigO{n \log n + m} time. For details, see Gabow
+and Tarjan's paper~\cite{GabowTarjan1984}.
+

@@ -1,0 +1,193 @@
+In this section we consider additional heap operations and four variants of F-heaps
+designed to accommodate them. We begin with a closer look at deletion of arbitrary
+items. The \bigO{\log n} time bound for deletion derived in \autoref{sec:f-heaps} can
+be an overestimate in some situations. For example, we can delete all the items in an
+\(n\)-item heap in \bigO{n} time, merely by starting from the minimum node and
+traversing all the trees representing the heap, dismantling them as we go. This
+observation generalizes to a mechanism for ``lazy'' deletion, due to Cheriton and
+Tarjan~\cite{CheritonTarjan1976}. This idea applied to F-heaps gives our first
+variant, \term{F-heaps with vacant nodes}, which we shall now describe.
+
+We perform a \oper{DeleteMin} or \oper{Delete} operation merely by removing the item
+to be deleted from the node containing it, leaving a vacant node in the data
+structure (which if necessary we can mark vacant). Now deletions take only \bigO{1}
+time, but we must modify the implementations of \oper{Meld} and \oper{FindMin} since
+in general the minimum node in a heap may be vacant. When performing \oper{Meld}, if
+one of the heaps to be melded has a vacant minimum node, this node becomes the
+minimum node of the new heap. To perform \opargs{FindMin}{h} if the minimum node is
+vacant, we traverse the trees representing the heap top-down, destroying all vacant
+nodes reached during the traversal and not continuing the traversal below any
+nonvacant node. This produces a set of trees all of whose roots are nonvacant, which
+we then link as in the original implementation of \oper{DeleteMin}. (See
+\autoref{fig:vacant-nodes}.) The following lemma bounds the amortized time of
+\oper{FindMin}.
+
+\begin{figure}
+	\caption{A \oper{FindMin} operation on a heap with vacant nodes. (a)~The original
+	heap. (b)~After \oper{FindMin}. Subtrees with roots 15, 12, 9, and 8 become
+	trees, and then linking takes place.}
+    \label{fig:vacant-nodes}
+\end{figure}
+
+\begin{lemma}
+	A \oper{FindMin} operation takes \bigO{l (\log(n/l) + 1)} amortized time, where
+	\(l\) is the number of vacant nodes destroyed and \(n\) is the number of nodes in
+	the heap, if \(l = 0\), the amortized time is \bigO{1}.
+\end{lemma}
+
+\begin{proof}
+	If \(l = 0\), the lemma is obvious. Thus suppose \(l \geq 1\). The amortized time
+	of the \oper{FindMin} operation is at most a constant times \(\log n\) plus the
+	number of new trees created by the destruction of vacant nodes. Let \(x\) be any
+	destroyed vacant node, and suppose that \(x\) has \(k\) nonvacant children before
+	its destruction. By \autoref{lemma:child-rank}, at least one of these, say,
+	\(y\), has a rank of at least \(k - 2\), which means that \(y\) is the root of
+	a subtree containing at least \(\phi^{k-2}\) nodes. These \(\phi^{k-2}\) nodes
+	can be uniquely associated with \(x\). In other words, if the \(l\) destroyed
+	vacant nodes have \(k_1, k_2, \dots, k_i\) nonvacant children, then
+	\(\sum_{i=1}^l \phi^{k_j-2} \leq n\). Subject to this constraint, the sum of the
+	\(k_i\)s, which counts the number of new trees created, is maximized when all the
+	\(k_i\)s are equal. This implies that \(\sum_{i=1}^l k_i \in \bigO{l (\log(n/l)
+	+ 1)}\), giving the lemma.
+\end{proof}
+
+Lazy deletion is especially useful for applications in which the deleted items can be
+identified implicitly, as, for example, if there is a predicate that specifies
+whether an item is deleted. The main drawback with lazy deletion is that it may use
+extra space if individual items are inserted and deleted many times. We can avoid
+this drawback by changing data structure slightly, giving our second variant of
+F-heaps, called \term{F-heaps with good and bad trees}.
+
+In the new variant, we avoid the use of vacant nodes. Instead, we divide the trees
+comprising the F-heap into two groups: \term{good trees} and \term{bad trees}. We
+maintain the minimum node to be a root of minimum key among the good trees. When
+inserting an item, the corresponding one-node tree becomes a good tree in the heap.
+When melding two heaps, we combine their sets of good trees and their sets of bad
+trees. When performing a \oper{DecreaseKey} operation, all the new trees formed by
+cascading cuts become good trees. We carry out a \oper{Delete} operation as described
+in \autoref{sec:f-heaps} except that, if the deleted item is the minimum node of the
+heap, all the subtrees rooted at its children become bad trees; we delay any linking
+until the next \oper{FindMin}. (This includes the case of a \oper{DeleteMin}
+operation.) To carry out a \oper{FindMin}, we check whether there are any bad trees.
+If not, we merely return the minimum node. If so, we link trees whose roots have
+equal rank until there are no two trees of equal rank, make all trees good, update
+the minimum node, and return it.
+
+With this variant of F-heaps, we obtain the following amortized time bounds (using an
+analysis similar to that above): \bigO{1} for \oper{FindMin}, \oper{Insert},
+\oper{Meld}, and \oper{DecreaseKey}; and \bigO{\log(n/l) + 1} per \oper{Delete} or
+\oper{DeleteMin} operation for a sequence of \(l\) such operations not separated by
+a \oper{FindMin}. The advantage of this variant is that it requires no space for
+vacant nodes. The disadvantage is that it does not support implicit deletion.
+
+Our third variant of F-heaps uses only a single tree to represent each heap. In this
+\term{one-tree variant}, we mark each node that is not a root as either \term{good}
+or \term{bad}; the node type is determined when the linking operation that makes the
+node a nonroot is done. These marks are in addition to the marks used for cascading
+cuts. We define the rank of a node to be its number of good children (i.e., we do not
+count the bad children).
+
+To meld two heaps, we link the corresponding trees, making the root that becomes
+a child bad. This melding does not change the rank of any node. To perform
+\oper{FindMin}, we return the root of the tree representing the heap. To perform
+\oper{DeleteMin}, we delete the tree root, link pairs of trees whose roots have equal
+rank until no such linking is possible, making each node that becomes a nonroot good,
+and then link all the remaining trees in any order, making each node that becomes
+a nonroot bad. To perform \oper{DecreaseKey}, we perform the appropriate cuts (using
+mark bits as before), producing a set of trees. We link these trees in any order,
+making each root that becomes a nonroot bad. To perform an arbitrary deletion, we do
+the appropriate cuts, discard the node to be delted, and combine the remaining trees
+using links as in \oper{DeleteMin}, first combining trees with roots of equal rank
+and marking the new nonroots good, then combining trees of nonequal rank and marking
+the new nonroots bad.
+
+The one-tree variant of F-heaps has the following properties:
+\autoref{cor:golden-node} still holds; that is, any node with \(k\) good children has
+at least \(F_{k+2} \geq \phi^k\) descendants. The number of bad children created
+during the running of the algorithm is at most one per \oper{Insert} or \oper{Meld},
+one per cut (and hence \bigO{1} per \oper{DecreaseKey}), and at most \bigO{\log n}
+per \oper{DeleteMin} or \oper{Delete}. Combining this with the previous analysis of
+F-heaps, we obtain an amortized times bound of \bigO{1} for \oper{Insert},
+\oper{Meld}, \oper{FindMin}, and \oper{DecreaseKey}, and \bigO{\log n} for
+\oper{DeleteMin} and \oper{Delete}.
+
+Our fourth and last variants of F-heaps, called \term{F-heaps with implicit keys}, is
+designed to support the following additional heap operation.
+
+\begin{itemize}
+	\item \opargs{IncreaseAllKeys}{\Delta, h}: Increase the keys of all items in heap
+		\(h\) by the arbitrary real number \(\Delta\).
+\end{itemize}
+
+To implement \oper{IncreaseAllKeys}, we represent the keys of the items implicitly
+rather than explicitly, using a separate data structure. A suitable variant of
+compressed trees~\cite{Tarjan1979b} suffices for this purpose. We maintain
+a compressed tree for each heap. Each node in the tree contains a values and possibly
+an item. Any node containing an item has no children. The values represent the keys
+as follows: If \(x\) is any node containing an item \(i\), the sum of the values of
+the ancestors of \(x\) (including \(x\) itself) is the key of \(i\). (See
+\autoref{fig:compressed-tree}.)
+
+\begin{figure}
+	\caption{A compressed tree. Items are \(a\), \(b\), \(c\), and \(d\). The key
+	of item \(a\) is \(3 + 4 - 2 + 10 = 15\).}
+    \label{fig:compressed-tree}
+\end{figure}
+
+We manipulate this data structure as follows: When executing \oper{MakeHeap}, we
+construct a new one-node compressed tree to represent the heap. The new node has
+value zero. When executing \opargs{Insert}{i, h}, we create a new compressed tree
+node \(x\) containing \(i\), make the root of the compressed tree representing \(h\)
+the parent \(p(x)\) of \(x\), and give \(x\) a value defined by \(value(x) = key(i)
+- value(p(x))\). When deleting an item \(i\) from a heap, we destroy the compressed
+tree node containing \(i\). When executing \opargs{DecreaseKey}{\Delta, i, h}, we
+subtract \(\Delta\) from the value of the compressed tree node containing \(i\).  To
+perform \opargs{IncreaseAllKeys}{\Delta, h}, we add \(\Delta\) to the value of the
+root of the compressed tree representing \(h\).
+
+Whenever we need to evaluate the key of an item \(i\) (as in a \oper{FindMin}
+operation or a linking step), we locate the compressed tree node \(x\) containing
+\(i\) and follow the path from \(x\) through its ancestors up to the tree root. Then
+we walk back down the path from the root to \(x\), \term{compressing} it as follows:
+When we visit a node \(y\) that is not a child of the root, we replace \(value(y\) by
+\(value(y) + value(p(y))\) and redefine \(p(y)\) to be the root. (See
+\autoref{fig:path-compression}.) This compression makes every node along the path
+a child of the root and preserves the relationship between values and keys. After the
+compression, we return \(value(x) + value(p(x))\) as the key of \(i\).
+
+\begin{figure}
+	\caption{Path compression. Triangles denote subtrees. (a)~The original tree.
+	(b)~After evaluating key \(a\).}
+    \label{fig:path-compression}
+\end{figure}
+
+The last operation we mus consider is melding. (If no melding takes place, then the
+depth of every compressed tree is at most one, and each operation on a compressed
+tree takes \bigO{1} time.) To facilitate melding we maintain for each compressed tree
+root a nonnegative integer \term{rank}. (This rank should not be confused with the
+rank of a heap-ordered tree node; it does not count the number of children.) A newly
+created compressed tree root has rank zero. When executing \opargs{Meld}{h_1, h_2},
+we locate the roots, say, \(x\) and \(y\), of the compressed trees representing
+\(h_1\) and \(h_2\). If \(rank(x) > rank(y)\), we make \(x\) the parent of \(y\) and
+redefine \(value(y)\) to be \(value(y) - value(x)\). If rank \(rank(x) < rank(y)\),
+we make \(y\) the parent of \(x\) and redefine \(value(x)\) to be \(value(x)
+- value(y)\). Finally, if \(rank(x) = rank(y)\), we increase \(rank(x)\) by one and
+proceed as in the case of \(rank(x) > rank(y)\). (See \autoref{fig:combining-trees}.)
+
+\begin{figure}
+	\caption{Combining two compressed trees. Ranks are outside the roots.}
+    \label{fig:combining-trees}
+\end{figure}
+
+To implement this data structure, we need one compressed tree node for each
+\oper{MakeHeap} operation plus one node per item, with room in each node for an item
+or rank, a value and a parent pointer. The total time for compressed tree operations
+is \bigO{m + f\alpha(m + f, n)}, where \(m\) is the number of heap operations, \(n\)
+is the number of \oper{MakeHeap} and \oper{Insert} operations, \(f\) is the number of
+key evaluations, and \(\alpha\) is a functional inverse of Ackerman's function~%
+\cite{Tarjan1979b,TarjanVanLeeuwen1984}. In most applications of heaps requiring use
+of the \oper{IncreaseAllKeys} operation, the time for manipulating heap-ordered trees
+will dominate the time for manipulating compressed trees. Note that the two data
+structures are entirely separate; we can use compressed trees in combination with any
+implementation of heaps that is based on key compression.
+

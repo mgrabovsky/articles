@@ -1,0 +1,183 @@
+\documentclass[11pt,a4paper,oneside,numbers=endperiod]{scrartcl}
+% Source: http://www.cs.princeton.edu/courses/archive/fall03/cs528/handouts/fibonacci%20heaps.pdf
+
+\usepackage{hyperref}    % Hyperlinking and PDF metadata
+\usepackage{polyglossia} % Babel for XeLaTex
+\usepackage{microtype}   % Microtypography improvements
+\usepackage{fontspec}    % Custom font selection
+\usepackage{amsmath,amsthm} % Math goodies
+\usepackage{titling}     % Custom \maketitle format
+\usepackage{paralist}    % More list environments
+\usepackage{csquotes}    % Context-sensitive quotations
+\usepackage{subcaption}  % Captions for subfigures
+\usepackage{tikz}        % Diagram drawing
+\usepackage{comment}     % Comments ignored during rendering
+
+% -----------------------------------------------------------------------------------
+% Fonts
+% -----------------------------------------------------------------------------------
+\usepackage{mathpazo}
+\setmainfont{Linux Libertine}
+\setsansfont{Linux Biolinum}
+
+% -----------------------------------------------------------------------------------
+% Metadata and bibliography
+% -----------------------------------------------------------------------------------
+\setmainlanguage{english} % Polyglossia language
+\hypersetup{
+    unicode,
+    colorlinks,
+    linkcolor=purple,
+    urlcolor=purple,
+    citecolor=purple,
+    pdftitle=Fibonacci Heaps and Their Uses in Improved Network Optimization %
+        Algorithms,
+    pdfauthor={Michael L. Fredman, Robert Endre Tarjan}}
+\usepackage[backend=biber,autolang=hyphen,sortlocale=en_US,style=numeric-comp,
+    sorting=nyt]{biblatex}
+\addbibresource{references.bib}
+% Make the References section text smaller
+\renewcommand*{\bibfont}{\small}
+
+% -----------------------------------------------------------------------------------
+% Convenient shortcuts
+% -----------------------------------------------------------------------------------
+\newcommand*\bigO[1]{\ensuremath{\mathcal{O}(#1)}}
+\newcommand*\term[1]{\emph{#1}}
+\newcommand*\oper[1]{\textsc{#1}}
+\newcommand*\opargs[2]{\textsc{#1}(\ensuremath{#2})}
+
+\newenvironment{step}[1]
+    {\vskip .8em plus .4em minus .3em%
+        \textit{#1.}\hskip .8em}
+    {\vskip .8em plus .4em minus .3em}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\providecommand*{\lemmaautorefname}{Lemma}
+\providecommand*{\corollaryautorefname}{Corollary}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+% -----------------------------------------------------------------------------------
+% Title format
+% -----------------------------------------------------------------------------------
+%\def\maketitlehooka{\begin{flushleft}\addtolength{\leftskip}{3em}}
+\pretitle{\centering\LARGE\sffamily\bfseries}
+\posttitle{\par\vskip 1em}
+%\preauthor{\large\bfseries}
+%\postauthor{\par\vskip 0.3em}
+\predate{}
+\postdate{}
+%\def\maketitlehookd{\end{flushleft}}
+
+% -----------------------------------------------------------------------------------
+% TikZ/PGF settings
+% -----------------------------------------------------------------------------------
+\tikzset{sibling distance=3em,level distance=3em,%
+	nodes={draw,circle,font=\sffamily\small,%
+	minimum size=1.6em,inner sep=0}}
+
+\begin{document}
+\title{Fibonacci Heaps and Their Uses in Improved Network Optimization Algorithms}
+\author{Michael L. Fredman\thanks{University of California, San Diego, La Jolla,
+    California}
+\and Robert Endre Tarjan\thanks{AT\&T Bell Laboratories, Murray Hill, New Jersey}}
+\date{}
+\maketitle
+
+\begin{abstract}
+    In this paper we develop a new data structure for implementing heaps (priority
+    queues). Our structure, \term{Fibonacci heaps} (abbreviated \term{F-heaps}),
+    extends the binomial queues proposed by Vuillemin and studied further by Brown.
+    F-heaps support arbitrary deletion from an \(n\)-item heap in \bigO{\log n}
+    amortized time and all other standard heap operations in \bigO{1} amortized time.
+    Using F-heaps we are able to obtain improved running times for several network
+    optimization algorithms. In particular, we obtain the following worst-case
+    bounds, where \(n\) is the number of vertices and \(m\) the number of edges in
+    the problem graph:
+    \begin{enumerate}
+        \item \bigO{n \log n + m} for the single-source shortest path problem with
+            nonnegative edge lengths, improved from \bigO{m \log_{(m/n + 2)} n};
+        \item \bigO{n^2 \log n + n m} for the all-pairs shortest path problem,
+            improved from \bigO{n m \log_{(m/n + 2)} n};
+        \item \bigO{n^2 \log n + n m} for the assignment problem (weighted bipartite
+            matching), improved from \bigO{n m \log_{(m/n + 2)} n};
+        \item \bigO{m \beta(m, n)} for the minimum spanning tree problem, improved
+            from \bigO{m \log\log_{(m/n + 2)} n}, where \(\beta(m, n) = \min \{
+            i \mid \log^{(i)} n \leq m/n \}\). Note that \(\beta(m, n) \leq \log^*
+            n\) if \(m \geq n\).
+    \end{enumerate}
+
+    One of these results, the improved bound for minimum spanning trees is the most
+    striking, although all the results give asymptotic improvements for graphs of
+    appropriate densities.
+\end{abstract}
+
+\begin{comment}
+Categories and Subject Descriptors:
+    E.1 [\textbf{Data}]: Data Structures---\textit{trees}; \textit{graphs};
+    F.2.2 [\textbf{Analysis of Algorithms and Problem Complexity}]: Nonnumerical
+        Algorithms and Problems---\textit{computations on discrete structures};
+        \textit{sorting and searching};
+    G.2.2 [\textbf{Discrete Mathematics}]: Graph Theory---\textit{graph algorithms};
+        \textit{network problems}; \textit{trees}
+
+General Terms: Algorithms, Theory
+
+Additional Key Words and Phrases: Heap, matching, minimum spanning tree, priority
+queue, shortest path
+
+A preliminary version of this paper appeared in the \emph{Proceedings of the 25th
+IEEE Symposium on the Foundations of Computer Science} (Singer Island, Fla.,
+Oct~24--26). IEEE, New York, 1984, pp.~338--346, \textcopyright~IEEE. Any portion of
+this paper that appeared in the preliminary version is reprinted with permission.
+
+This research was supported in part by the National Science Foundation under grant
+MCS~82-04031.
+
+Permission to copy without fee all or part of this material is granted provided that
+the copies are not made or distributed for direct commercial advantage, the ACM
+copyright notice and the title of the publication and its date appear, and notice is
+given that copying is by permission of the Association for Computing Machinery. To
+copy otherwise, or to republish, requires a fee and/or specific permission.
+
+\textcopyright~1987 ACM 0004-5411/87/0700-0596 \$1.50
+
+{\footnotesize Journal of the Association for Computing Machinery, Vol.~34, No.~3,
+July 1987, Pages 596--615.}
+\end{comment}
+
+\section{Introduction}
+\input{01-introduction}
+
+\section{Fibonacci Heaps}
+\label{sec:f-heaps}
+\input{02-f-heaps}
+
+\section{Variants of Fibonacci Heaps}
+\label{sec:variants}
+\input{03-variants}
+
+\section{Shortest Paths}
+\label{sec:shortest-paths}
+\input{04-shortest-paths}
+
+\section{Minimum Spanning Trees}
+\label{sec:mst}
+\input{05-mst}
+
+\section{Recent Results and Open Problems}
+\label{sec:results}
+\input{06-results}
+
+\paragraph{Acknowledgement.} We thank Dan Sleator for perceptive suggestions that
+helped to simplify our data structure and Hal Gabow for pointing out the additional
+applications of F-heaps mentioned in \autoref{sec:results}.
+
+\printbibliography[title=References,heading=bibintoc]
+
+\end{document}
+% vim: set et sw=4 ts=4 sts=4:
