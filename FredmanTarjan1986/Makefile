@@ -7,11 +7,14 @@ main.pdf: references.bib main.ltx $(CHAPTERS:=.tex)
 	$(BIB) main
 	$(LTX) main.ltx
 
+FredmanTarjan1986.pdf: main.pdf
+	mv -f $^ $@
+
 clean:
 	-$(RM) *.{aux,bbl,bcf,blg,log,out,run.xml,toc}
 
 distclean: clean
-	-$(RM) main.pdf
+	-$(RM) FredmanTarjan1986.pdf
 
 .PHONY: clean
 
