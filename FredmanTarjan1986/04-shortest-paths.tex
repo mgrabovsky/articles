@@ -15,18 +15,18 @@ n - 1\). Dijkstra's algorithm solves the shortest path problem using
 a \term{tentative distance function} \(d\) from vertices to real numbers with the
 following properties:
 \begin{enumerate}
-	\item For any vertex \(v\) such that \(d(v)\) is finite, there is a path from
-		\(s\) to \(v\) of length \(d(v)\);
-	\item when the algorithm terminates, \(d(v)\) is the distance from \(s\) to
-	\(v\).
+    \item For any vertex \(v\) such that \(d(v)\) is finite, there is a path from
+        \(s\) to \(v\) of length \(d(v)\);
+    \item when the algorithm terminates, \(d(v)\) is the distance from \(s\) to
+    \(v\).
 \end{enumerate}
 
 Initially \(d(s) = 0\) and \(d(v) = \infty\) for \(v \neq s\). During the running of the algorithm, each vertex is one of three states: \term{unlabeled}, \term{labeled}, or \term{scanned}. Initially \(s\) is labeled and all other vertices are unlabeled. The algorithm consists of repeating the following step until there are no labeled vertices (every vertex is scanned).
 
 \begin{step}{Scan}
-	Select a labeled vertex \(v\) with \(d(v)\) minimum. Convert \(v\) from labeled
-	to scanned. For each edge \((v, w)\) such that \(d(v) + l(v, w) < d(w)\), replace
-	\(d(w)\) by \(d(v) + l(v, w)\) and make \(w\) labeled.
+    Select a labeled vertex \(v\) with \(d(v)\) minimum. Convert \(v\) from labeled
+    to scanned. For each edge \((v, w)\) such that \(d(v) + l(v, w) < d(w)\), replace
+    \(d(w)\) by \(d(v) + l(v, w)\) and make \(w\) labeled.
 \end{step}
 
 The nonnegativity of the edge lengths implies that a vertex, once scanned, can never
@@ -59,19 +59,20 @@ Several other optimization algorithms use Dijkstra's algorithm as a subroutine, 
 for each of these, we obtain a corresponding improvement. We shall give three
 examples:
 \begin{enumerate}
-	\item The all-pairs shortest path problem, with or without negative edge lengths,
-		can be solved in \bigO{nm} time plus \(n\) iterations of Dijkstra's
-		algorithm~\cite{Johnson1977,Tarjan1983}. Thus we obtain a time bound of
-		\bigO{n^2 \log n + n m}, improved from \bigO{n m \log_{(m/n + 2)} n}.
-	\item The assignment problem (bipartite weighted matching) can also be solved in
-		\bigO{nm} time plus \(n\) iterations of Dijkstra's algorithm~%
-		\cite{Tarjan1983}.  Thus we obtain a bound of \bigO{n^2 \log n + n m},
-		improved from \bigO{n m \log_{(m/n + 2)} n}.
-	\item Knuth's generalization~\cite{Knuth1977} of Dijkstra's algorithm to compute
-		minimum-cost derivations in a context-free language runs in \bigO{n \log
-		n + t} time, improved from \bigO{m \log n + t}, where \(n\) is the number of
-		nonterminals, \(m\) is the number of productions, and \(t\) is the total
-		length of the productions. (There is at least one production per nonterminal;
-		thus \(m \geq n\).)
+    \item The all-pairs shortest path problem, with or without negative edge lengths,
+        can be solved in \bigO{nm} time plus \(n\) iterations of Dijkstra's
+        algorithm~\cite{Johnson1977,Tarjan1983}. Thus we obtain a time bound of
+        \bigO{n^2 \log n + n m}, improved from \bigO{n m \log_{(m/n + 2)} n}.
+    \item The assignment problem (bipartite weighted matching) can also be solved in
+        \bigO{nm} time plus \(n\) iterations of Dijkstra's algorithm~%
+        \cite{Tarjan1983}.  Thus we obtain a bound of \bigO{n^2 \log n + n m},
+        improved from \bigO{n m \log_{(m/n + 2)} n}.
+    \item Knuth's generalization~\cite{Knuth1977} of Dijkstra's algorithm to compute
+        minimum-cost derivations in a context-free language runs in \bigO{n \log
+        n + t} time, improved from \bigO{m \log n + t}, where \(n\) is the number of
+        nonterminals, \(m\) is the number of productions, and \(t\) is the total
+        length of the productions. (There is at least one production per nonterminal;
+        thus \(m \geq n\).)
 \end{enumerate}
 
+% vim: set et sw=4:

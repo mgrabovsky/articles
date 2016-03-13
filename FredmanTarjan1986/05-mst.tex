@@ -13,9 +13,9 @@ a one-vertex tree. We initialize the forest to contain each of the \(n\) vertice
 there is only one \(n\)-vertex tree).
 
 \begin{step}{Connect}
-	Select any tree \(T\) in the forest. Find a minimum-cost edge with exactly one
-	endpoint in \(T\) and add it to the forest. (This connects two trees to form
-	one.)
+    Select any tree \(T\) in the forest. Find a minimum-cost edge with exactly one
+    endpoint in \(T\) and add it to the forest. (This connects two trees to form
+    one.)
 \end{step}
 
 This algorithm is nondeterministic: We are free to select the tree to be processed in
@@ -33,9 +33,9 @@ the connection can be made. We start by defining \(key(s) = 0\) and key \(key(v)
 finite key:
 
 \begin{step}{Connect to start}
-	Select a vertex \(v\) with \(key(v)\) minimum among vertices with finite key.
-	Replace \(key(v)\) by \(-\infty\). For each edge \((v, w)\) such that \(c(v, w)
-	< key(w)\), replace \(key(w)\) by \(c(v, w)\) and define \(e(w) = (v, w)\).
+    Select a vertex \(v\) with \(key(v)\) minimum among vertices with finite key.
+    Replace \(key(v)\) by \(-\infty\). For each edge \((v, w)\) such that \(c(v, w)
+    < key(w)\), replace \(key(w)\) by \(c(v, w)\) and define \(e(w) = (v, w)\).
 \end{step}
 
 When this algorithm terminates, the set of edges \(e(v)\) with \(v \neq s\) defines
@@ -82,26 +82,26 @@ create an empty heap. Then we repeat the following tree-growing step until there
 no unmarked old trees. This completes the pass.
 
 \begin{step}{Grow a new tree}
-	Select any unmarked old tree \(T_0\), and insert it as an item into th heap with
-	a key of zero. Repeat the following step until the heap is empty, or it contains
-	more than \(k\) trees (where \(k\) is a parameter to be chosen later), or the
-	growing tree becomes connected to a marked old tree:
+    Select any unmarked old tree \(T_0\), and insert it as an item into th heap with
+    a key of zero. Repeat the following step until the heap is empty, or it contains
+    more than \(k\) trees (where \(k\) is a parameter to be chosen later), or the
+    growing tree becomes connected to a marked old tree:
 
-	\begin{step}{Connect to starting tree}
-		Delete an old \(T\) of minimum key from the heap. Set \(key(T) = -\infty\).
-		If \(T \neq T_0\) (i.e., \(T\) is not the starting tree of this growth step),
-		add \(e(T)\) to the forest. (Edge \(e(T)\) connects old tree \(T\) to the
-		current tree containing \(T_0\).) If \(T\) is marked, stop growing the
-		current tree, and finish the growth step as described below. Otherwise, mark
-		\(T\). For each edge \((v, w)\) with \(v\) in \(T\) and \(c(v, w)
-		< key(tree(w))\), set \(e(tree(w)) = (v, w)\). If \(key(tree(w)) = \infty\),
-		insert \(tree(w)\) in the heap with a redefined key of \(c(v, w)\); if \(c(v,
-		w) < key(tree(w)) < \infty\), decrease the key of \(tree(w)\) to \(c(v, w)\).
-	\end{step}
+    \begin{step}{Connect to starting tree}
+        Delete an old \(T\) of minimum key from the heap. Set \(key(T) = -\infty\).
+        If \(T \neq T_0\) (i.e., \(T\) is not the starting tree of this growth step),
+        add \(e(T)\) to the forest. (Edge \(e(T)\) connects old tree \(T\) to the
+        current tree containing \(T_0\).) If \(T\) is marked, stop growing the
+        current tree, and finish the growth step as described below. Otherwise, mark
+        \(T\). For each edge \((v, w)\) with \(v\) in \(T\) and \(c(v, w)
+        < key(tree(w))\), set \(e(tree(w)) = (v, w)\). If \(key(tree(w)) = \infty\),
+        insert \(tree(w)\) in the heap with a redefined key of \(c(v, w)\); if \(c(v,
+        w) < key(tree(w)) < \infty\), decrease the key of \(tree(w)\) to \(c(v, w)\).
+    \end{step}
 
-	To finish the growth step, empty the heap and set \(key(T) = \infty\) for every
-	old tree \(T\) with finite key (these are the trees that have been inserted into
-	the heap during the current growth step).
+    To finish the growth step, empty the heap and set \(key(T) = \infty\) for every
+    old tree \(T\) with finite key (these are the trees that have been inserted into
+    the heap during the current growth step).
 \end{step}
 
 We can analyze the running time of a pass as follows: The time for the cleanup and
@@ -148,3 +148,4 @@ n)} time, and a minimum spanning tree with a fixed number of marked edges in a g
 with marked and unmarked edges in \bigO{n \log n + m} time. For details, see Gabow
 and Tarjan's paper~\cite{GabowTarjan1984}.
 
+% vim: set et sw=4:

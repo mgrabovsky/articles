@@ -23,29 +23,30 @@ a common vertex into ``packets'' and working only with packet minima.
 
 Several intriguing open questions are raised by our work:
 \begin{enumerate}[(i)][3]
-	\item Is there a ``self-adjusting'' version of F-heaps that achieves the same
-		amortized time bounds, but requires neither maintaining ranks nor performing
-		cascading cuts? The self-adjusting version of leftist heaps proposed by
-		Sleator and Tarjan~\cite{SleatorTarjan1986} does not solve this problem, as
-		the amortized time bound for \oper{DecreaseKey} is \bigO{\log n} rather than
-		\bigO{1}. We have a candidate data structure, but are so far unable to verify
-		that it has the desired time bounds.
-	\item Can the best time bounds for finding shortest paths and minimum spanning
-		trees be improved? Dijkstra's algorithm requries \(\Omega(n \log n + m)\)
-		time assuming a comparison-based computation model, since it mus texamine all
-		the edges in the worst case and can be used to sort \(n\) numbers.
-		Nevertheless, this does not preclude the existence of another, faster
-		algorithm. Similarly, there is no reason to suppose tha the
-		Gabow--Galil--Spencer bound for minimum spanning trees is the best possible.
-		It is suggestive that the minimality of a spanning tree can be checked in
-		\bigO{m \alpha(m, n)} time~\cite{Tarjan1979b} and even in \bigO{m}
-		comparison~\cite{Komlos1984}. Furthermore, if the edges are presorted,
-		a minimum spanning tree can be computed in \bigO{m \alpha(m, n)} time~%
-		\cite{Tarjan1983}.
-	\item Are there other problems needing heaps where the use of F-heaps gives
-		aymptotically improved algorithms? A possible candidate is the nonbipartite
-		weighted matching problem, for which the current best bound of \bigO{n^2 \log
-		n + n m \log \log \log_{(m / n + 2)} n}~\cite{Gabow+1984} might be improvable
-		to \bigO{n^2 \log n + n m}.
+    \item Is there a ``self-adjusting'' version of F-heaps that achieves the same
+        amortized time bounds, but requires neither maintaining ranks nor performing
+        cascading cuts? The self-adjusting version of leftist heaps proposed by
+        Sleator and Tarjan~\cite{SleatorTarjan1986} does not solve this problem, as
+        the amortized time bound for \oper{DecreaseKey} is \bigO{\log n} rather than
+        \bigO{1}. We have a candidate data structure, but are so far unable to verify
+        that it has the desired time bounds.
+    \item Can the best time bounds for finding shortest paths and minimum spanning
+        trees be improved? Dijkstra's algorithm requries \(\Omega(n \log n + m)\)
+        time assuming a comparison-based computation model, since it mus texamine all
+        the edges in the worst case and can be used to sort \(n\) numbers.
+        Nevertheless, this does not preclude the existence of another, faster
+        algorithm. Similarly, there is no reason to suppose tha the
+        Gabow--Galil--Spencer bound for minimum spanning trees is the best possible.
+        It is suggestive that the minimality of a spanning tree can be checked in
+        \bigO{m \alpha(m, n)} time~\cite{Tarjan1979b} and even in \bigO{m}
+        comparison~\cite{Komlos1984}. Furthermore, if the edges are presorted,
+        a minimum spanning tree can be computed in \bigO{m \alpha(m, n)} time~%
+        \cite{Tarjan1983}.
+    \item Are there other problems needing heaps where the use of F-heaps gives
+        aymptotically improved algorithms? A possible candidate is the nonbipartite
+        weighted matching problem, for which the current best bound of \bigO{n^2 \log
+        n + n m \log \log \log_{(m / n + 2)} n}~\cite{Gabow+1984} might be improvable
+        to \bigO{n^2 \log n + n m}.
 \end{enumerate}
 
+% vim: set et sw=4:

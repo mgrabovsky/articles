@@ -12,12 +12,12 @@ of the items in \(x\) and \(y\). If the item in \(x\) has the smaller key, we ma
 \begin{figure}
     \begin{subfigure}[t]{0.50\textwidth}
         \centering
-		\input{fig/01a.tikz}
+        \input{fig/01a.tikz}
         \caption{}
     \end{subfigure}
     \begin{subfigure}[t]{0.49\textwidth}
         \centering
-		\input{fig/01b.tikz}
+        \input{fig/01b.tikz}
         \caption{}
     \end{subfigure}
     \caption{Linking two heap-ordered trees. (In this and most of the succeeding
@@ -66,8 +66,8 @@ whichever contains the item of the smaller key. (In the case of a tie, the choic
 arbitrary.) All of these operations take \bigO{1} time.
 
 \begin{step}{Linking step}
-	Find any two trees whose roots have the same rank, and link them. (The new tree
-	root has rank one greater than the ranks of the old tree roots.)
+    Find any two trees whose roots have the same rank, and link them. (The new tree
+    root has rank one greater than the ranks of the old tree roots.)
 \end{step}
 
 Once there are no two trees with roots of the same rank, we form a list of the
@@ -219,7 +219,7 @@ property (1).
 \end{proof}
 
 \begin{corollary}
-	\label{cor:golden-node}
+    \label{cor:golden-node}
     A node of rank \(k\) in an F-heap has at least \(F_{k+2} \geq \phi^k\)
     descendants, including itself, where \(F_k\) is the \(k\)th Fibonacci number
     (\(F_0 = 0, F_1 = 1, F_k = F_{k-2} + F_{k-1}\) for \(k \geq 2\)), and \(\phi = (1
@@ -284,3 +284,4 @@ hold a pointer to a root of the appropriate rank.  Thus the entire data structur
 be implemented on a pointer machine~\cite{Tarjan1979a} with no loss in asymptotic
 efficiency.
 
+% vim: set et sw=4:

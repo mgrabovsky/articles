@@ -36,9 +36,9 @@ that heaps do \emph{not} support efficient searching for an item.
     redundant, since item \(i\) determines \(h\). However, our implementations of
     these operations require direct access to \(h\), which must be provided by an
     auxiliary data structure if \(h\) is not a parameter to the operation. If melding
-	is allowed, a data structure for disjoint set union~\cite{TarjanVanLeeuwen1984}
-	must be used for this purpose; otherwise, a pointer from each item to the heap
-	containing it suffices.
+    is allowed, a data structure for disjoint set union~\cite{TarjanVanLeeuwen1984}
+    must be used for this purpose; otherwise, a pointer from each item to the heap
+    containing it suffices.
 \end{remark}
 
 Vuillemin~\cite{Vuillemin1978} invented a class of heaps, called \term{binomial
@@ -89,3 +89,4 @@ to implement Dijkstra's algorithm. In \autoref{sec:mst} we discuss the minimum
 spanning tree problem. In \autoref{sec:results} we mention several more recent
 results and remaining open problems.
 
+% vim: set et sw=4:

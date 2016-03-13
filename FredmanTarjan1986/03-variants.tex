@@ -23,32 +23,32 @@ we then link as in the original implementation of \oper{DeleteMin}. (See
 \oper{FindMin}.
 
 \begin{figure}
-	\caption{A \oper{FindMin} operation on a heap with vacant nodes. (a)~The original
-	heap. (b)~After \oper{FindMin}. Subtrees with roots 15, 12, 9, and 8 become
-	trees, and then linking takes place.}
+    \caption{A \oper{FindMin} operation on a heap with vacant nodes. (a)~The original
+    heap. (b)~After \oper{FindMin}. Subtrees with roots 15, 12, 9, and 8 become
+    trees, and then linking takes place.}
     \label{fig:vacant-nodes}
 \end{figure}
 
 \begin{lemma}
-	A \oper{FindMin} operation takes \bigO{l (\log(n/l) + 1)} amortized time, where
-	\(l\) is the number of vacant nodes destroyed and \(n\) is the number of nodes in
-	the heap, if \(l = 0\), the amortized time is \bigO{1}.
+    A \oper{FindMin} operation takes \bigO{l (\log(n/l) + 1)} amortized time, where
+    \(l\) is the number of vacant nodes destroyed and \(n\) is the number of nodes in
+    the heap, if \(l = 0\), the amortized time is \bigO{1}.
 \end{lemma}
 
 \begin{proof}
-	If \(l = 0\), the lemma is obvious. Thus suppose \(l \geq 1\). The amortized time
-	of the \oper{FindMin} operation is at most a constant times \(\log n\) plus the
-	number of new trees created by the destruction of vacant nodes. Let \(x\) be any
-	destroyed vacant node, and suppose that \(x\) has \(k\) nonvacant children before
-	its destruction. By \autoref{lemma:child-rank}, at least one of these, say,
-	\(y\), has a rank of at least \(k - 2\), which means that \(y\) is the root of
-	a subtree containing at least \(\phi^{k-2}\) nodes. These \(\phi^{k-2}\) nodes
-	can be uniquely associated with \(x\). In other words, if the \(l\) destroyed
-	vacant nodes have \(k_1, k_2, \dots, k_i\) nonvacant children, then
-	\(\sum_{i=1}^l \phi^{k_j-2} \leq n\). Subject to this constraint, the sum of the
-	\(k_i\)s, which counts the number of new trees created, is maximized when all the
-	\(k_i\)s are equal. This implies that \(\sum_{i=1}^l k_i \in \bigO{l (\log(n/l)
-	+ 1)}\), giving the lemma.
+    If \(l = 0\), the lemma is obvious. Thus suppose \(l \geq 1\). The amortized time
+    of the \oper{FindMin} operation is at most a constant times \(\log n\) plus the
+    number of new trees created by the destruction of vacant nodes. Let \(x\) be any
+    destroyed vacant node, and suppose that \(x\) has \(k\) nonvacant children before
+    its destruction. By \autoref{lemma:child-rank}, at least one of these, say,
+    \(y\), has a rank of at least \(k - 2\), which means that \(y\) is the root of
+    a subtree containing at least \(\phi^{k-2}\) nodes. These \(\phi^{k-2}\) nodes
+    can be uniquely associated with \(x\). In other words, if the \(l\) destroyed
+    vacant nodes have \(k_1, k_2, \dots, k_i\) nonvacant children, then
+    \(\sum_{i=1}^l \phi^{k_j-2} \leq n\). Subject to this constraint, the sum of the
+    \(k_i\)s, which counts the number of new trees created, is maximized when all the
+    \(k_i\)s are equal. This implies that \(\sum_{i=1}^l k_i \in \bigO{l (\log(n/l)
+    + 1)}\), giving the lemma.
 \end{proof}
 
 Lazy deletion is especially useful for applications in which the deleted items can be
@@ -115,8 +115,8 @@ Our fourth and last variants of F-heaps, called \term{F-heaps with implicit keys
 designed to support the following additional heap operation.
 
 \begin{itemize}
-	\item \opargs{IncreaseAllKeys}{\Delta, h}: Increase the keys of all items in heap
-		\(h\) by the arbitrary real number \(\Delta\).
+    \item \opargs{IncreaseAllKeys}{\Delta, h}: Increase the keys of all items in heap
+        \(h\) by the arbitrary real number \(\Delta\).
 \end{itemize}
 
 To implement \oper{IncreaseAllKeys}, we represent the keys of the items implicitly
@@ -129,8 +129,8 @@ the ancestors of \(x\) (including \(x\) itself) is the key of \(i\). (See
 \autoref{fig:compressed-tree}.)
 
 \begin{figure}
-	\caption{A compressed tree. Items are \(a\), \(b\), \(c\), and \(d\). The key
-	of item \(a\) is \(3 + 4 - 2 + 10 = 15\).}
+    \caption{A compressed tree. Items are \(a\), \(b\), \(c\), and \(d\). The key
+    of item \(a\) is \(3 + 4 - 2 + 10 = 15\).}
     \label{fig:compressed-tree}
 \end{figure}
 
@@ -156,8 +156,8 @@ a child of the root and preserves the relationship between values and keys. Afte
 compression, we return \(value(x) + value(p(x))\) as the key of \(i\).
 
 \begin{figure}
-	\caption{Path compression. Triangles denote subtrees. (a)~The original tree.
-	(b)~After evaluating key \(a\).}
+    \caption{Path compression. Triangles denote subtrees. (a)~The original tree.
+    (b)~After evaluating key \(a\).}
     \label{fig:path-compression}
 \end{figure}
 
@@ -175,7 +175,7 @@ we make \(y\) the parent of \(x\) and redefine \(value(x)\) to be \(value(x)
 proceed as in the case of \(rank(x) > rank(y)\). (See \autoref{fig:combining-trees}.)
 
 \begin{figure}
-	\caption{Combining two compressed trees. Ranks are outside the roots.}
+    \caption{Combining two compressed trees. Ranks are outside the roots.}
     \label{fig:combining-trees}
 \end{figure}
 
@@ -191,3 +191,4 @@ will dominate the time for manipulating compressed trees. Note that the two data
 structures are entirely separate; we can use compressed trees in combination with any
 implementation of heaps that is based on key compression.
 
+% vim: set et sw=4:
