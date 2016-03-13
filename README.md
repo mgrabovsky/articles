@@ -1,0 +1,1 @@
+- Fredman, Tarjan: "Fibonacci Heaps and Their Uses in Improved Network Optimization Algorithms" (1986)
